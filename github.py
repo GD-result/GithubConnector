@@ -82,7 +82,7 @@ class githubConnector:
                 handle = urllib2.urlopen(req)
                 #Response
                 response = handle.read()
-                #Return json represent
+                #Return new list with teams id and names
                 return [{'id': t['id'], 'name': t['name']} for t in json.loads(response)]
             except IOError:
                 print "Organization or repository not found"
@@ -114,7 +114,7 @@ class githubConnector:
                 response = handle.read()
                 
                 jsonview = json.loads(response)
-                #Return json represent
+                #Return new list with users logins
                 return [x['login'] for x in jsonview]
             except IOError:
                 print "Team not found"
