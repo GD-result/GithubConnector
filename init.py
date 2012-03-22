@@ -8,16 +8,15 @@ Created on 21.03.2012
 from github import githubConnector
 from github import TeamGetterThread
 from github import UserGetterThread
+import wiki
 from time import time
 from time import sleep
 import threading
 #Creating the main github connector
-git = githubConnector(login="login", password="password")
+git = githubConnector(login="login", password="pass")
 #Getting all repositories in organization
 repositories = git.getRepositories(organizationName="organizationName")
-
-teams = list()
-users = list()
+teams = {}
 
 thread = None
 semaphore = threading.Semaphore(10)
@@ -37,23 +36,23 @@ for currentRepository in repositories:
     thread.start()
 
 #Waiting for the completion of all threads
-while (len(threading.enumerate()) > 1):
-    sleep(0.1)
-    
-for i in xrange(0, len(teams)):
-    for j in xrange(0, len(teams[i])):
+while (threading.activeCount() > 1):
+    sleep(1)
+
+
+for allteams in teams.values():
+    for team in allteams:
         thread = UserGetterThread(gConnector=git,
-                         teamID=teams[i][j]['id'],
-                         users=users,
-                         semaphore=semaphore,
-                         lock=lock)
+                                  teamID=team['id'],
+                                  users=team,
+                                  semaphore=semaphore,
+                                  lock=lock)
         semaphore.acquire()
         thread.start()
         
-while (len(threading.enumerate()) > 1):
-    sleep(0.1)
-    
-#print "Repositories count - %d" % len(repositories)
-#print "Teams count - %d" % len(teams)
-#print "Users count - %d" % len(users)
+while (threading.activeCount() > 1):
+    sleep(1)
+
+repositories = teams    
+print "Repositories count - %d" % len(repositories)
 print "Final time ", time() - tim

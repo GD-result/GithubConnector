@@ -158,7 +158,7 @@ class TeamGetterThread(threading.Thread):
             #entrance to the protected area
             self.lock.acquire()
             #adding teams to list
-            self.teams.append(t)
+            self.teams[self.repository] = t
             #exit from the protected area
             self.lock.release()
             print "Job done at", time.time(), "Threads count is ", len(threading.enumerate())
@@ -202,11 +202,11 @@ class UserGetterThread(threading.Thread):
             #entrance to the protected area
             self.lock.acquire()
             #adding users to list
-            self.users.append(t)
+            self.users['users'] = t
             #exit from the protected area
             self.lock.release()
             #print "Job done at", time.time(), "Threads count ", len(threading.enumerate(), "\n")
-            print "Job done at {0} Threads count - {1}".format(time.time(), len(threading.enumerate()))
+            print "Job done at {0} Threads count - {1}".format(time.time(), threading.activeCount())
         except Exception:
             print "Fatal Error"
         finally:
