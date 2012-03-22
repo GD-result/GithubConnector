@@ -55,9 +55,17 @@ class githubConnector:
             except IOError:
                 print "Organization not found"
             
-    def getTeams(self, repositoryName="", organizationName):
+    def getTeams(self, repositoryName, organizationName):
         '''
+        Returns a list with the names of teams in the repository
         
+        @type repositoryName: String
+        @type organizationName: Strign
+        @rtype: list
+        @param repositoryName: Your repository name
+        @param organizationName: Your organization name
+        @return: List of all teams in repository
+        Example return [{'id': 'name'}, {'id': 'name'}, ...]
         '''
         #Authorization without OAuth token
         if self.OAuthToken is None:
@@ -81,6 +89,13 @@ class githubConnector:
     
     def getUsers(self, teamID):
         '''
+        Returns a list with the names of users in the team
+        
+        @type teamID: String
+        @rtype: list[][]
+        @param teamID: Team's id
+        @return: List of all users names in team
+        Example return [['user1', 'user2', 'user3'], ['user6', 'user007'], ...]
         '''
         #Authorization without OAuth token
         if self.OAuthToken is None:
@@ -105,39 +120,94 @@ class githubConnector:
                 print "Team not found"
     
 class TeamGetterThread(threading.Thread):
-        def __init__(self, gConnector, repository, organization, teams, semaphore):
-            threading.Thread.__init__(self)
-            self.gConnector = gConnector
-            self.repository = repository
-            self.organization = organization
-            self.semaphore = semaphore
-            self.teams = teams  
-            #self.lock = threading.Lock()
+    '''
+    The class for getting a list of repositories in the company in a separate thread
+    '''
+    def __init__(self, gConnector, repository, organization, teams, semaphore, lock):
+        '''
+        @type gConnector: githubConnector
+        @type repository: String
+        @type organization: String
+        @type teams: list
+        @type semaphore: threading.Semaphore
+        @type lock: threading.Lock
+        
+        @param gConnector: An instance of class githubConnector, which represents a connection to github.com
+        @param repository: The name of the repository
+        @param organization: The name of the organization
+        @param teams: List, where will be added received teams
+        @param semaphore: Semaphore, which will be released after work
+        @param lock: Lock, for synchronous adding teams to list
+        '''
+        threading.Thread.__init__(self)
+        
+        self.gConnector = gConnector
+        self.repository = repository
+        self.organization = organization
+        self.teams = teams
+        
+        self.semaphore = semaphore
+        self.lock = lock
             
         
-        def run(self):
+    def run(self):
+        try:
+            #Getting teams
             t = self.gConnector.getTeams(repositoryName=self.repository, organizationName=self.organization)
-            #self.lock.acquire(1)
+            
+            #entrance to the protected area
+            self.lock.acquire()
+            #adding teams to list
             self.teams.append(t)
-            #self.lock.release()
-            print "Job done at", time.time(), "Threads count ", len(threading.enumerate())
+            #exit from the protected area
+            self.lock.release()
+            print "Job done at", time.time(), "Threads count is ", len(threading.enumerate())
+        except Exception:
+            print "Fatal Error" 
+        finally:
             self.semaphore.release()
 
 
 class UserGetterThread(threading.Thread):
-        def __init__(self, gConnector, teamID, users, semaphore):
-            threading.Thread.__init__(self)
-            self.gConnector = gConnector
-            self.teamID = teamID
-            self.users = users  
-            self.semaphore = semaphore
-            #self.lock = threading.Lock()
+    '''
+    The class for getting a list of users in the repository in a separate thread
+    '''
+    def __init__(self, gConnector, teamID, users, semaphore, lock):
+        '''
+        @type gConnector: githubConnector
+        @type teamID: String
+        @type users: list
+        @type semaphore: threading.Semaphore
+        @type lock: threading.Lock
+        
+        @param gConnector: An instance of class githubConnector, which represents a connection to github.com
+        @param teamID: Identifier of the team
+        @param users: List, where will be added received users
+        @param semaphore: Semaphore, which will be released after work
+        @param lock: Lock, for synchronous adding users to list
+        '''
+        threading.Thread.__init__(self)
+        self.gConnector = gConnector
+        self.teamID = teamID
+        self.users = users  
+        
+        self.semaphore = semaphore
+        self.lock = lock
             
         
-        def run(self):
-            t = self.gConnector.getUsers(teamID = self.teamID)
-            #self.lock.acquire(1)
+    def run(self):
+        try:
+            #Getting uses from team
+            t = self.gConnector.getUsers(teamID=self.teamID)
+            #entrance to the protected area
+            self.lock.acquire()
+            #adding users to list
             self.users.append(t)
-            #self.lock.release()
-            print "Job done at", time.time(), "Threads count ", len(threading.enumerate())
+            #exit from the protected area
+            self.lock.release()
+            #print "Job done at", time.time(), "Threads count ", len(threading.enumerate(), "\n")
+            print "Job done at {0} Threads count - {1}".format(time.time(), len(threading.enumerate()))
+        except Exception:
+            print "Fatal Error"
+        finally:
             self.semaphore.release()
