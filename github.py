@@ -154,7 +154,6 @@ class TeamGetterThread(threading.Thread):
         try:
             #Getting teams
             t = self.gConnector.getTeams(repositoryName=self.repository, organizationName=self.organization)
-            
             #entrance to the protected area
             self.lock.acquire()
             #adding teams to list

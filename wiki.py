@@ -29,23 +29,19 @@ class WikiConnector:
         designContent = '''
                 <table class = 'confluenceTable'>
                     <tr>
-                        <th class='confluenceTh'>Repositories</th>
-                        <th class='confluenceTh'>Teams</th>
-                        <th class='confluenceTh'>Users</th>
+                        <th class='confluenceTh'>Repository</th>
+                        <th class='confluenceTh'>Team</th>
+                        <th class='confluenceTh'>User</th>
                     </tr>
             '''
         for repos in content.keys():
-            designContent += '''
-                                <tr>
-                                    <td rowspan='%d' class='confluenceTd' style='font-weight: %s'>%s</td>
-                             ''' % (len(content[repos]), "bold", repos)
+            designContent += "<tr> <td rowspan='%d' class='confluenceTd' style='font-weight: %s'>%s</td>"% (len(content[repos]), "bold", repos)
             for team in content[repos]:
                 designContent += "<td class='confluenceTd'>%s</td>" % team['name']
                 designContent += "<td class='confluenceTd'>%s</td>" % ",".join(team['users'])
-                designContent += "</tr><tr>"
-        designContent += "</table>"
-                        
-        pass
+                designContent += "</tr>"
+        designContent += "</table>"   
+        return designContent               
     
     
     def sendDesignContent(self, pageName, designContent):
