@@ -51,7 +51,7 @@ class githubConnector:
                 jsonview = json.loads(response)
                 
                 #Return list of repositories names
-                return [x['name'] for x in jsonview]
+                return [(x['name'], x['private']) for x in jsonview]
             except IOError:
                 print "Organization not found"
             
@@ -153,17 +153,17 @@ class TeamGetterThread(threading.Thread):
     def run(self):
         try:
             #Getting teams
-            t = self.gConnector.getTeams(repositoryName=self.repository, organizationName=self.organization)
+            t = self.gConnector.getTeams(repositoryName=self.repository[0], organizationName=self.organization)
             #entrance to the protected area
             self.lock.acquire()
             #adding teams to list
             self.teams[self.repository] = t
-            #exit from the protected area
-            self.lock.release()
             print "Job done at", time.time(), "Threads count is ", len(threading.enumerate())
         except Exception:
             print "Fatal Error" 
         finally:
+            #exit from the protected area
+            self.lock.release()
             self.semaphore.release()
 
 
@@ -202,11 +202,11 @@ class UserGetterThread(threading.Thread):
             self.lock.acquire()
             #adding users to list
             self.users['users'] = t
-            #exit from the protected area
-            self.lock.release()
             #print "Job done at", time.time(), "Threads count ", len(threading.enumerate(), "\n")
             print "Job done at {0} Threads count - {1}".format(time.time(), threading.activeCount())
         except Exception:
             print "Fatal Error"
         finally:
+            #exit from the protected area
+            self.lock.release()
             self.semaphore.release()

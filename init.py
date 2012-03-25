@@ -54,7 +54,14 @@ while (threading.activeCount() > 1):
     sleep(1)
 
 repositories = teams   
-
-wiki.WikiConnector.createDesignContent(repositories) 
 print "Repositories count - %d" % len(repositories)
 print "Final time ", time() - tim
+
+wikiConnection = wiki.WikiConnector(wikiXMLRPCUrl="xmlrpc url", 
+                                    wikiLogin="login", 
+                                    wikiPassword="pass", 
+                                    mainSpace="main space")
+
+designContent = wikiConnection.createDesignContent(repositories)
+
+wikiConnection.sendDesignContent(topPage="top page", pageName="page name", designContent=designContent)
