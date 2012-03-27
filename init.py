@@ -53,15 +53,15 @@ for allteams in teams.values():
 while (threading.activeCount() > 1):
     sleep(1)
 
-repositories = teams   
+repositories = teams 
 print "Repositories count - %d" % len(repositories)
 print "Final time ", time() - tim
 
-wikiConnection = wiki.WikiConnector(wikiXMLRPCUrl="xmlrpc url", 
-                                    wikiLogin="login", 
-                                    wikiPassword="pass", 
-                                    mainSpace="main space")
+wikiConnection = wiki.WikiConnector(wikiXMLRPCUrl="", 
+                                    wikiLogin="", 
+                                    wikiPassword="", 
+                                    mainSpace="")
 
 designContent = wikiConnection.createDesignContent(repositories)
 
-wikiConnection.sendDesignContent(topPage="top page", pageName="page name", designContent=designContent)
+wikiConnection.sendDesignContent(topPage="", pageName="", designContent=designContent)

@@ -83,7 +83,28 @@ class githubConnector:
                 #Response
                 response = handle.read()
                 #Return new list with teams id and names
-                return [{'id': t['id'], 'name': t['name']} for t in json.loads(response)]
+                return [{'id': t['id'], 'name': t['name'], 'permission': self.getTeamProperty(t['id'], 'permission')} for t in json.loads(response)]
+            except IOError:
+                print "Organization or repository not found"
+                
+    def getTeamProperty(self, teamID, propertyName):
+        #Authorization without OAuth token
+        if self.OAuthToken is None:
+            #Link for getting all teams in the repository
+            url = "https://api.github.com/teams/%s" % (teamID)
+            #Converting login and password to base64
+            base64string = base64.encodestring('%s:%s' % (self.login, self.password))[:-1]
+            #Creating request
+            req = urllib2.Request(url)
+            #Adding the login and password in the request header
+            req.add_header("Authorization", "Basic %s" % base64string)
+            try:
+                #Trying to send a request
+                handle = urllib2.urlopen(req)
+                #Response
+                response = handle.read()
+                #Return new list with teams id and names
+                return json.loads(response)[propertyName]
             except IOError:
                 print "Organization or repository not found"
     
