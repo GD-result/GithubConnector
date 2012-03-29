@@ -37,8 +37,8 @@ for currentRepository in repositories:
     thread.start()
 
 #Waiting for the completion of all threads
-while (threading.activeCount() > 1):
-    sleep(1)
+while (len(threading.enumerate()) > 1):
+    sleep(0.1)
 
 
 for allteams in teams.values():
@@ -51,8 +51,8 @@ for allteams in teams.values():
         semaphore.acquire()
         thread.start()
         
-while (threading.activeCount() > 1):
-    sleep(1)
+while (len(threading.enumerate()) > 1):
+    sleep(0.1)
 
 repositories = teams 
 print "Repositories count - %d" % len(repositories)

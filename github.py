@@ -227,7 +227,7 @@ class UserGetterThread(threading.Thread):
             #adding users to list
             self.users['users'] = t
             #print "Job done at", time.time(), "Threads count ", len(threading.enumerate(), "\n")
-            print "Job done at {0} Threads count - {1}".format(time.time(), threading.activeCount())
+            print "Job done at {0} Threads count - {1}".format(time.time(), len(threading.enumerate()))
         except Exception:
             print "Fatal Error"
         finally:
