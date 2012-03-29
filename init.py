@@ -8,14 +8,15 @@ Created on 21.03.2012
 from github import githubConnector
 from github import TeamGetterThread
 from github import UserGetterThread
+import designer
 import wiki
 from time import time
 from time import sleep
 import threading
 #Creating the main github connector
-git = githubConnector(login="login", password="pass")
+git = githubConnector(login="", password="")
 #Getting all repositories in organization
-repositories = git.getRepositories(organizationName="organizationName")
+repositories = git.getRepositories(organizationName="")
 teams = {}
 
 thread = None
@@ -27,7 +28,7 @@ for currentRepository in repositories:
     #Creating a thread that will service a particular repository
     thread = TeamGetterThread(gConnector=git,
                          repository=currentRepository,
-                         organization="organizationName",
+                         organization="",
                          teams=teams,
                          semaphore=semaphore,
                          lock=lock)
@@ -62,6 +63,5 @@ wikiConnection = wiki.WikiConnector(wikiXMLRPCUrl="",
                                     wikiPassword="", 
                                     mainSpace="")
 
-designContent = wikiConnection.createDesignContent(repositories)
 
-wikiConnection.sendDesignContent(topPage="", pageName="", designContent=designContent)
+wikiConnection.sendContent(topPage="", pageName="", content=repositories, designer=designer.repositoryDesigner)

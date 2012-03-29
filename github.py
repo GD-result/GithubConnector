@@ -25,12 +25,13 @@ class githubConnector:
     
     def getRepositories(self, organizationName):
         '''
-        Returns a list with the names of repositories in the company
+        Returns a list of repositories in the company
         
         @type organizationName: String
         @param organizationName: Name of your organizationName
         @rtype: list
         @return: List of all repositories in organization
+        Return example: (name, private), ('rep1', true), ('rep2', false)
         '''
         #Authorization without OAuth token
         if self.OAuthToken is None:
@@ -50,14 +51,14 @@ class githubConnector:
                 
                 jsonview = json.loads(response)
                 
-                #Return list of repositories names
+                #Return list of repositories: [(name, isprivate), ..., ('rep1', true)]
                 return [(x['name'], x['private']) for x in jsonview]
             except IOError:
                 print "Organization not found"
             
     def getTeams(self, repositoryName, organizationName):
         '''
-        Returns a list with the names of teams in the repository
+        Returns a list of teams in the repository
         
         @type repositoryName: String
         @type organizationName: Strign
@@ -65,7 +66,7 @@ class githubConnector:
         @param repositoryName: Your repository name
         @param organizationName: Your organization name
         @return: List of all teams in repository
-        Example return [{'id': 'name'}, {'id': 'name'}, ...]
+        Example return [{id: id, name: name, permission: permission}, {'id': '156', 'name': 'team1', 'permission': 'admin'}, ...]
         '''
         #Authorization without OAuth token
         if self.OAuthToken is None:
@@ -82,12 +83,14 @@ class githubConnector:
                 handle = urllib2.urlopen(req)
                 #Response
                 response = handle.read()
-                #Return new list with teams id and names
+                #Return new list with teams id, names, permissions
                 return [{'id': t['id'], 'name': t['name'], 'permission': self.getTeamProperty(t['id'], 'permission')} for t in json.loads(response)]
             except IOError:
                 print "Organization or repository not found"
                 
     def getTeamProperty(self, teamID, propertyName):
+        '''
+        '''
         #Authorization without OAuth token
         if self.OAuthToken is None:
             #Link for getting all teams in the repository
